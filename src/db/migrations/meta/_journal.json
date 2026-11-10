@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1794312541431,
+      "tag": "0000_mighty_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1794313098495,
+      "tag": "0001_youthful_ultragirl",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1794313136073,
+      "tag": "0002_true_junta",
+      "breakpoints": true
+    }
+  ]
+}

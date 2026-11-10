@@ -1,0 +1,1 @@
+ALTER TABLE `sessions` MODIFY COLUMN `token` varchar(255) COLLATE utf8mb4_bin NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE `rate_limits` MODIFY COLUMN `last_request` bigint NOT NULL;
