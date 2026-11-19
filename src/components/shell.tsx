@@ -19,7 +19,10 @@ export function Shell({
           <span className="brand-symbol">
             <Leaf size={23} />
           </span>
-          PalettePlate
+          <span className="wordmark">
+            <strong>Palette</strong>
+            <span>Plate</span>
+          </span>
         </Link>
         <p className="brand-note">A little colour, every day.</p>
         <nav aria-label="Main navigation">
@@ -53,7 +56,10 @@ export function Shell({
         <header className="topbar">
           <Link href="/" className="topbar-brand">
             <Leaf size={19} />
-            PalettePlate
+            <span className="wordmark">
+              <strong>Palette</strong>
+              <span>Plate</span>
+            </span>
           </Link>
           <span className="topbar-context">Your everyday plate</span>
           <Link href="/log" className="button button-small">

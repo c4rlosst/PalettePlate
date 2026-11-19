@@ -1,12 +1,16 @@
 @import "tailwindcss";
 :root {
   color-scheme: light;
-  --ink: #1c1c1e;
-  --muted: #63636b;
-  --green: #287a4b;
-  --line: #e5e5ea;
-  --pale: #f2f2f7;
-  --leaf: #e8f3e8;
+  --ink: #1d261d;
+  --muted: #5e6a5e;
+  --green: #2d6a2e;
+  --green-deep: #1f4f22;
+  --leaf-bright: #6fa82a;
+  --sun: #f5b31a;
+  --tangerine: #ee6a25;
+  --line: #e3e8d9;
+  --pale: #f7f8f2;
+  --leaf: #eaf3de;
   --red: #be3c3b;
   --orange: #a7551b;
   --yellow: #846b13;
@@ -52,7 +56,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid #245c83;
+  outline: 3px solid var(--tangerine);
   outline-offset: 4px;
 }
 h1,
@@ -62,6 +66,7 @@ p {
   margin: 0;
 }
 h1 {
+  color: var(--green-deep);
   font-size: 44px;
   line-height: 1.1;
   font-weight: 750;
@@ -133,6 +138,16 @@ svg {
   font-weight: 700;
   letter-spacing: -0.8px;
 }
+.wordmark strong {
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--green-deep);
+}
+.wordmark span {
+  font-weight: 300;
+  color: var(--green-deep);
+}
 .brand-symbol {
   width: 38px;
   height: 38px;
@@ -165,8 +180,8 @@ svg {
   font-weight: 500;
 }
 .nav-link.active {
-  background: #e2ece4;
-  color: #22603d;
+  background: var(--leaf);
+  color: var(--green-deep);
   font-weight: 650;
 }
 .nav-link:hover {
@@ -271,7 +286,7 @@ main:not(.auth-page):not(.error-page) {
     transform 0.15s;
 }
 .button:hover {
-  background: #21643e;
+  background: var(--green-deep);
 }
 .button:active {
   transform: scale(0.97);
