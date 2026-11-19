@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Utensils, Leaf, Search, Sun, Check } from "lucide-react";
+import { Plus, Utensils, Leaf, Search, UserRound, Check } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Rainbow } from "@/components/rainbow";
 import { manilaDay, rainbowDay } from "@/lib/rainbow";
@@ -59,12 +59,20 @@ export default async function Today() {
               day: "numeric",
             }).format(new Date())}
           </p>
-          <h1>{name ? `Hello, ${name}.` : "A little colour, every day."}</h1>
-          <p>Make room for the foods you love.</p>
+          <h1>Today</h1>
+          <p>
+            {name
+              ? `Hello, ${name}. A little colour, at your own pace.`
+              : "A little colour, at your own pace."}
+          </p>
         </div>
-        <span className="heading-icon">
-          <Sun size={28} />
-        </span>
+        <Link
+          href="/profile"
+          className="profile-shortcut"
+          aria-label="Your profile"
+        >
+          <UserRound size={23} />
+        </Link>
       </div>
       {setup ? (
         <div className="notice">
@@ -77,11 +85,8 @@ export default async function Today() {
       ) : !actor?.emailVerified ? (
         <div className="notice">
           <div>
-            <strong>Your everyday meals, all in one place.</strong>
-            <span>
-              Create an account to save your foods and start your own colour
-              palette.
-            </span>
+            <strong>A space for your everyday meals.</strong>
+            <span>Save your favourites and start your own palette.</span>
           </div>
           <Link className="button button-small" href="/auth">
             Get started
@@ -97,11 +102,10 @@ export default async function Today() {
       <section className="rainbow-panel">
         <div className="section-heading">
           <div>
-            <div className="inline-label">
-              <Leaf size={17} />
-              Your colours today
-            </div>
-            <h2>Every colour brings something good.</h2>
+            <h2>Your daily palette</h2>
+            <p className="section-description">
+              Good things come in different colours.
+            </p>
           </div>
           <span className="subtle-pill">{rainbow.count} colours enjoyed</span>
         </div>
@@ -116,8 +120,7 @@ export default async function Today() {
               </>
             ) : (
               <>
-                Explore fruits and vegetables from four colour groups, at your
-                own pace.
+                Try fruits and vegetables from four colours, at your own pace.
               </>
             )}
           </p>
@@ -130,7 +133,7 @@ export default async function Today() {
       <div className="daily-grid">
         <section>
           <div className="section-heading">
-            <h2>On your plate</h2>
+            <h2>Your meals</h2>
             <span className="muted">Today</span>
           </div>
           {meals.length ? (
@@ -164,11 +167,7 @@ export default async function Today() {
                 <Utensils size={28} />
               </span>
               <h3>What’s on your plate?</h3>
-              <p>
-                Your meals will appear here.
-                <br />
-                Start with something you enjoyed today.
-              </p>
+              <p>Start with something you enjoyed today.</p>
               <Link href="/log" className="text-link">
                 Log your first meal
               </Link>

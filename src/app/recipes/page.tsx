@@ -6,7 +6,7 @@ export default function Recipes() {
     <Shell active="Recipes">
       <div className="page-heading">
         <div>
-          <h1>Everyday inspiration.</h1>
+          <h1>Recipes</h1>
           <p>Start with the foods you already enjoy.</p>
         </div>
       </div>

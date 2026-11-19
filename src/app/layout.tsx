@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
-import "@fontsource/public-sans/400.css";
-import "@fontsource/public-sans/500.css";
-import "@fontsource/public-sans/600.css";
-import "@fontsource/public-sans/700.css";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#F2F2F7",
+};
 export const metadata: Metadata = {
   title: {
     default: "PalettePlate — A little colour, every day",

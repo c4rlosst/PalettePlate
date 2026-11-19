@@ -32,9 +32,8 @@ export default async function Foods({
     <Shell active="Foods">
       <div className="page-heading">
         <div>
-          <p className="date-line">Familiar foods, fresh possibilities</p>
-          <h1>Find your favourites.</h1>
-          <p>Explore local foods. Like what you enjoy, skip what you don’t.</p>
+          <h1>Foods</h1>
+          <p>Familiar favourites. A few new discoveries.</p>
         </div>
       </div>
       <form className="food-filters" action="/foods">

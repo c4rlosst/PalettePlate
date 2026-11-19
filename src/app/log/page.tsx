@@ -12,18 +12,17 @@ export default async function Log({
   const actor = await pageActor();
   if (!actor)
     return (
-      <Shell>
+      <Shell active="Log meal">
         <Setup />
       </Shell>
     );
   const foods = await browseFoods(actor, {});
   const params = await searchParams;
   return (
-    <Shell>
+    <Shell active="Log meal">
       <div className="page-heading">
         <div>
-          <p className="date-line">A moment for your meal</p>
-          <h1>What did you enjoy?</h1>
+          <h1>Log meal</h1>
           <p>Choose the foods you ate. No weighing or calorie counting.</p>
         </div>
       </div>

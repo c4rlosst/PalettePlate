@@ -19,7 +19,7 @@ export function Shell({
           <span className="brand-symbol">
             <Leaf size={23} />
           </span>
-          PalettePlate<span className="brand-period">.</span>
+          PalettePlate
         </Link>
         <p className="brand-note">A little colour, every day.</p>
         <nav aria-label="Main navigation">
@@ -42,6 +42,7 @@ export function Shell({
           <Link
             className={`nav-link ${active === "Profile" ? "active" : ""}`}
             href="/profile"
+            aria-current={active === "Profile" ? "page" : undefined}
           >
             <UserRound size={19} />
             Your profile
@@ -50,7 +51,11 @@ export function Shell({
       </aside>
       <div className="workspace">
         <header className="topbar">
-          <span>Your everyday plate</span>
+          <Link href="/" className="topbar-brand">
+            <Leaf size={19} />
+            PalettePlate
+          </Link>
+          <span className="topbar-context">Your everyday plate</span>
           <Link href="/log" className="button button-small">
             <Plus size={17} />
             Log meal
@@ -63,12 +68,16 @@ export function Shell({
       </div>
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {[
-          ...items,
+          items[0],
+          items[1],
+          { label: "Log meal", href: "/log", icon: Plus },
+          items[2],
           { label: "Profile", href: "/profile", icon: UserRound },
         ].map(({ label, href, icon: Icon }) => (
           <Link
             href={href}
             key={label}
+            className={label === "Log meal" ? "tab-log" : undefined}
             aria-current={active === label ? "page" : undefined}
           >
             <Icon size={20} />

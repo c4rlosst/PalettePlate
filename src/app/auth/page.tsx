@@ -10,7 +10,7 @@ export default function Auth() {
           <span className="brand-symbol">
             <Leaf size={23} />
           </span>
-          PalettePlate.
+          PalettePlate
         </Link>
         <div>
           <p className="date-line">Made for everyday Filipino meals</p>

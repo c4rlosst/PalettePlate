@@ -18,7 +18,7 @@ export default async function Profile() {
     <Shell active="Profile">
       <div className="page-heading">
         <div>
-          <h1>Your profile.</h1>
+          <h1>Your profile</h1>
           <p>A few details to make this space yours.</p>
         </div>
       </div>
