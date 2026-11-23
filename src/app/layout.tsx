@@ -1,10 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito } from "next/font/google";
 import "./globals.css";
+const nunito = Nunito({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-nunito",
+  display: "swap",
+});
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#F7F8F2",
+  themeColor: "#FBFAF2",
 };
 export const metadata: Metadata = {
   title: {
@@ -20,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={nunito.variable}>
       <body>
         <a className="skip-link" href="#main-content">
           Skip to content

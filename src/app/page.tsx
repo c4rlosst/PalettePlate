@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Utensils, Leaf, Search, UserRound, Check } from "lucide-react";
+import { Plus, Utensils, Leaf, Search, Check } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Rainbow } from "@/components/rainbow";
 import { manilaDay, rainbowDay } from "@/lib/rainbow";
@@ -49,7 +49,7 @@ export default async function Today() {
   ];
   return (
     <Shell>
-      <div className="page-heading">
+      <section className="hero">
         <div>
           <p className="date-line">
             {new Intl.DateTimeFormat("en-PH", {
@@ -59,21 +59,32 @@ export default async function Today() {
               day: "numeric",
             }).format(new Date())}
           </p>
-          <h1>Today</h1>
-          <p>
-            {name
-              ? `Hello, ${name}. A little colour, at your own pace.`
-              : "A little colour, at your own pace."}
-          </p>
+          <h1>
+            {name ? `Hello, ${name}.` : "Hello there."}{" "}
+            <em>Ready for more colour?</em>
+          </h1>
+          <p>Good food, a little more colour, at your own pace.</p>
+          <Link href="/log" className="button button-sun">
+            <Plus size={18} />
+            Log a meal
+          </Link>
         </div>
-        <Link
-          href="/profile"
-          className="profile-shortcut"
-          aria-label="Your profile"
+        <div
+          className="hero-ring"
+          style={
+            {
+              "--pct": `${(Math.min(rainbow.count, 4) / 4) * 100}%`,
+            } as React.CSSProperties
+          }
+          role="img"
+          aria-label={`${rainbow.count} colours enjoyed today. The goal is four.`}
         >
-          <UserRound size={23} />
-        </Link>
-      </div>
+          <div>
+            <strong>{rainbow.count}</strong>
+            <span>of 4 colours</span>
+          </div>
+        </div>
+      </section>
       {setup ? (
         <div className="notice">
           <strong>Your plate is almost ready.</strong>

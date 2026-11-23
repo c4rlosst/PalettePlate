@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Leaf } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 import { Rainbow } from "@/components/rainbow";
 export default function Auth() {
@@ -7,10 +6,17 @@ export default function Auth() {
     <main id="main-content" className="auth-page">
       <section className="auth-story">
         <Link className="brand" href="/">
-          <span className="brand-symbol">
-            <Leaf size={23} />
+          <img
+            className="brand-logo"
+            src="/logo.png"
+            alt=""
+            width={46}
+            height={45}
+          />
+          <span className="wordmark">
+            <strong>Palette</strong>
+            <span>Plate</span>
           </span>
-          PalettePlate
         </Link>
         <div>
           <p className="date-line">Made for everyday Filipino meals</p>

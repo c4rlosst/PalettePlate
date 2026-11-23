@@ -14,74 +14,54 @@ export function Shell({
   ];
   return (
     <div className="app-frame">
-      <aside className="sidebar">
-        <Link className="brand" href="/">
-          <img
-            className="brand-logo"
-            src="/logo.png"
-            alt=""
-            width={42}
-            height={41}
-          />
-          <span className="wordmark">
-            <strong>Palette</strong>
-            <span>Plate</span>
-          </span>
-        </Link>
-        <p className="brand-note">A little colour, every day.</p>
-        <nav aria-label="Main navigation">
-          {items.map(({ label, href, icon: Icon }) => (
-            <Link
-              key={label}
-              href={href}
-              className={`nav-link ${active === label ? "active" : ""}`}
-              aria-current={active === label ? "page" : undefined}
-            >
-              <Icon size={19} />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="local-note">
-            <span className="status-dot" /> Made for everyday Filipino meals
-          </div>
-          <Link
-            className={`nav-link ${active === "Profile" ? "active" : ""}`}
-            href="/profile"
-            aria-current={active === "Profile" ? "page" : undefined}
-          >
-            <UserRound size={19} />
-            Your profile
-          </Link>
-        </div>
-      </aside>
-      <div className="workspace">
-        <header className="topbar">
-          <Link href="/" className="topbar-brand">
+      <header className="topbar">
+        <div className="topbar-inner">
+          <Link className="brand" href="/">
             <img
               className="brand-logo"
               src="/logo.png"
               alt=""
-              width={24}
-              height={24}
+              width={42}
+              height={41}
             />
             <span className="wordmark">
               <strong>Palette</strong>
               <span>Plate</span>
             </span>
           </Link>
-          <span className="topbar-context">Your everyday plate</span>
-          <Link href="/log" className="button button-small">
-            <Plus size={17} />
-            Log meal
-          </Link>
-        </header>
-        <main id="main-content">{children}</main>
-        <footer className="page-footer">
-          Small choices. More colour. Your own pace.
-        </footer>
-      </div>
+          <nav className="top-nav" aria-label="Main navigation">
+            {items.map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className={`nav-link ${active === label ? "active" : ""}`}
+                aria-current={active === label ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <div className="top-actions">
+            <Link href="/log" className="button button-small">
+              <Plus size={17} />
+              Log meal
+            </Link>
+            <Link
+              href="/profile"
+              className="avatar-link"
+              aria-label="Your profile"
+              aria-current={active === "Profile" ? "page" : undefined}
+            >
+              <UserRound size={20} />
+            </Link>
+          </div>
+        </div>
+      </header>
+      <main id="main-content">{children}</main>
+      <footer className="page-footer">
+        Made for everyday Filipino meals. Small choices, more colour, your own
+        pace.
+      </footer>
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {[
           items[0],
