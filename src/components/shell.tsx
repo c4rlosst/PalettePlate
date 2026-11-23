@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Leaf, House, Search, BookOpen, UserRound, Plus } from "lucide-react";
+import { House, Search, BookOpen, UserRound, Plus } from "lucide-react";
 export function Shell({
   children,
   active = "Today",
@@ -16,9 +16,13 @@ export function Shell({
     <div className="app-frame">
       <aside className="sidebar">
         <Link className="brand" href="/">
-          <span className="brand-symbol">
-            <Leaf size={23} />
-          </span>
+          <img
+            className="brand-logo"
+            src="/logo.png"
+            alt=""
+            width={42}
+            height={41}
+          />
           <span className="wordmark">
             <strong>Palette</strong>
             <span>Plate</span>
@@ -55,7 +59,13 @@ export function Shell({
       <div className="workspace">
         <header className="topbar">
           <Link href="/" className="topbar-brand">
-            <Leaf size={19} />
+            <img
+              className="brand-logo"
+              src="/logo.png"
+              alt=""
+              width={24}
+              height={24}
+            />
             <span className="wordmark">
               <strong>Palette</strong>
               <span>Plate</span>

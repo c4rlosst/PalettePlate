@@ -138,6 +138,14 @@ svg {
   font-weight: 700;
   letter-spacing: -0.8px;
 }
+.brand-logo {
+  display: block;
+  height: auto;
+  margin-right: 10px;
+}
+.topbar-brand .brand-logo {
+  margin-right: 7px;
+}
 .wordmark strong {
   font-style: italic;
   font-weight: 800;
