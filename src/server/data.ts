@@ -13,7 +13,12 @@ import {
   user,
 } from "@/db/schema";
 import { colours, dayBounds, manilaDay } from "@/lib/rainbow";
-import { requireVerified, requireOwner, type Actor } from "./policy";
+import {
+  requireVerified,
+  requireOwner,
+  requireAdmin,
+  type Actor,
+} from "./policy";
 const foodQuery = z.object({
   search: z.string().trim().max(100).default(""),
   colour: z.enum(colours).optional(),
@@ -212,47 +217,91 @@ const recipeInput = z.object({
     .min(1, "Add at least one ingredient.")
     .max(8),
 });
-export async function createRecipe(actor: Actor | null, input: unknown) {
-  requireVerified(actor);
-  const data = recipeInput.parse(input);
+function recipeLines(data: z.infer<typeof recipeInput>) {
   const lines = data.sections.flatMap((s) =>
     s.items.map((i) => ({ ...i, section: s.title })),
   );
   if (lines.length > 80)
     throw new Error("A recipe can have up to 80 ingredients.");
+  return lines;
+}
+type Tx = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
+async function saveIngredients(
+  tx: Tx,
+  recipeId: string,
+  lines: ReturnType<typeof recipeLines>,
+) {
   const foodIds = [...new Set(lines.map((l) => l.foodId).filter(Boolean))];
-  const db = getDb();
+  if (foodIds.length) {
+    const found = await tx
+      .select({ id: foods.id })
+      .from(foods)
+      .where(and(inArray(foods.id, foodIds), eq(foods.archived, false)));
+    if (found.length !== foodIds.length)
+      throw new Error("Some linked foods are unavailable. Refresh and retry.");
+  }
+  await tx.insert(recipeIngredients).values(
+    lines.map((l, position) => ({
+      id: crypto.randomUUID(),
+      recipeId,
+      foodId: l.foodId || null,
+      section: l.section,
+      position,
+      item: l.item,
+      amount: l.amount,
+    })),
+  );
+}
+export async function createRecipe(actor: Actor | null, input: unknown) {
+  requireAdmin(actor);
+  const data = recipeInput.parse(input);
+  const lines = recipeLines(data);
   const id = crypto.randomUUID();
-  await db.transaction(async (tx) => {
-    if (foodIds.length) {
-      const found = await tx
-        .select({ id: foods.id })
-        .from(foods)
-        .where(and(inArray(foods.id, foodIds), eq(foods.archived, false)));
-      if (found.length !== foodIds.length)
-        throw new Error("Some linked foods are unavailable. Refresh and retry.");
-    }
+  const authorId = actor.id;
+  await getDb().transaction(async (tx) => {
     await tx.insert(recipes).values({
       id,
-      userId: actor.id,
+      userId: authorId,
       name: data.name,
       description: data.description,
       instructions: data.instructions || null,
       mealType: data.mealType,
     });
-    await tx.insert(recipeIngredients).values(
-      lines.map((l, position) => ({
-        id: crypto.randomUUID(),
-        recipeId: id,
-        foodId: l.foodId || null,
-        section: l.section,
-        position,
-        item: l.item,
-        amount: l.amount,
-      })),
-    );
+    await saveIngredients(tx, id, lines);
   });
   return id;
+}
+export async function updateRecipe(
+  actor: Actor | null,
+  id: unknown,
+  input: unknown,
+) {
+  requireAdmin(actor);
+  const recipeId = z.string().uuid().parse(id);
+  const data = recipeInput.parse(input);
+  const lines = recipeLines(data);
+  await getDb().transaction(async (tx) => {
+    const [existing] = await tx
+      .select({ id: recipes.id })
+      .from(recipes)
+      .where(eq(recipes.id, recipeId))
+      .limit(1);
+    if (!existing) throw new Error("This recipe was not found.");
+    await tx
+      .update(recipes)
+      .set({
+        name: data.name,
+        description: data.description,
+        instructions: data.instructions || null,
+        mealType: data.mealType,
+      })
+      .where(eq(recipes.id, recipeId));
+    await tx
+      .delete(recipeIngredients)
+      .where(eq(recipeIngredients.recipeId, recipeId));
+    await saveIngredients(tx, recipeId, lines);
+  });
+  return recipeId;
 }
 export async function listRecipes(actor: Actor | null) {
   requireVerified(actor);
@@ -266,7 +315,6 @@ export async function listRecipes(actor: Actor | null) {
       createdAt: recipes.createdAt,
     })
     .from(recipes)
-    .where(eq(recipes.userId, actor.id))
     .orderBy(desc(recipes.createdAt))
     .limit(100);
   if (!mine.length) return [];
@@ -312,10 +360,10 @@ export async function getRecipe(actor: Actor | null, input: unknown) {
     .where(eq(recipes.id, id))
     .limit(1);
   if (!recipe) throw new Error("This recipe was not found.");
-  requireOwner(actor, recipe.userId);
   const ingredients = await db
     .select({
       id: recipeIngredients.id,
+      foodId: recipeIngredients.foodId,
       section: recipeIngredients.section,
       position: recipeIngredients.position,
       item: recipeIngredients.item,
@@ -330,16 +378,15 @@ export async function getRecipe(actor: Actor | null, input: unknown) {
   return { recipe, ingredients };
 }
 export async function deleteRecipe(actor: Actor | null, input: unknown) {
-  requireVerified(actor);
+  requireAdmin(actor);
   const id = z.string().uuid().parse(input);
   const db = getDb();
   const [recipe] = await db
-    .select({ userId: recipes.userId })
+    .select({ id: recipes.id })
     .from(recipes)
     .where(eq(recipes.id, id))
     .limit(1);
   if (!recipe) throw new Error("This recipe was not found.");
-  requireOwner(actor, recipe.userId);
   const [used] = await db
     .select({ recipeId: entryRecipes.recipeId })
     .from(entryRecipes)
@@ -349,9 +396,7 @@ export async function deleteRecipe(actor: Actor | null, input: unknown) {
     throw new Error(
       "This recipe is part of a logged meal, so it cannot be deleted yet.",
     );
-  await db
-    .delete(recipes)
-    .where(and(eq(recipes.id, id), eq(recipes.userId, actor.id)));
+  await db.delete(recipes).where(eq(recipes.id, id));
 }
 export async function getProfile(actor: Actor | null) {
   requireVerified(actor);

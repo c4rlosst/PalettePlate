@@ -8,6 +8,7 @@ import {
   deleteEntry,
   saveProfile,
   createRecipe,
+  updateRecipe,
   deleteRecipe,
 } from "@/server/data";
 export type ActionResult = { ok: boolean; message: string; id?: string };
@@ -46,6 +47,9 @@ export async function deleteMealAction(id: string) {
 }
 export async function createRecipeAction(input: unknown) {
   return run(async () => createRecipe(await currentActor(), input));
+}
+export async function updateRecipeAction(id: string, input: unknown) {
+  return run(async () => updateRecipe(await currentActor(), id, input));
 }
 export async function deleteRecipeAction(id: string) {
   return run(async () => deleteRecipe(await currentActor(), id));

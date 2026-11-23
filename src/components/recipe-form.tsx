@@ -2,7 +2,11 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, X } from "lucide-react";
-import { createRecipeAction, deleteRecipeAction } from "@/app/actions";
+import {
+  createRecipeAction,
+  updateRecipeAction,
+  deleteRecipeAction,
+} from "@/app/actions";
 import { colourLabels, type Colour } from "@/lib/rainbow";
 
 type FoodOption = {
@@ -15,16 +19,47 @@ type FoodOption = {
 type Item = { key: number; amount: string; item: string; foodId: string };
 type Section = { key: number; title: string; items: Item[] };
 
-export function RecipeForm({ foods }: { foods: FoodOption[] }) {
-  const keys = useRef(10);
+export type RecipeInitial = {
+  id: string;
+  name: string;
+  mealType: string;
+  description: string;
+  instructions: string;
+  sections: {
+    title: string;
+    items: { amount: string; item: string; foodId: string }[];
+  }[];
+};
+
+export function RecipeForm({
+  foods,
+  initial,
+}: {
+  foods: FoodOption[];
+  initial?: RecipeInitial;
+}) {
+  const keys = useRef(1000);
   const nextKey = () => ++keys.current;
-  const [name, setName] = useState("");
-  const [mealType, setMealType] = useState("dinner");
-  const [description, setDescription] = useState("");
-  const [instructions, setInstructions] = useState("");
-  const [sections, setSections] = useState<Section[]>([
-    { key: 1, title: "", items: [{ key: 2, amount: "", item: "", foodId: "" }] },
-  ]);
+  const [name, setName] = useState(initial?.name ?? "");
+  const [mealType, setMealType] = useState(initial?.mealType ?? "dinner");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [instructions, setInstructions] = useState(initial?.instructions ?? "");
+  const [sections, setSections] = useState<Section[]>(() => {
+    if (!initial)
+      return [
+        {
+          key: 1,
+          title: "",
+          items: [{ key: 2, amount: "", item: "", foodId: "" }],
+        },
+      ];
+    let k = 0;
+    return initial.sections.map((s) => ({
+      key: ++k,
+      title: s.title,
+      items: s.items.map((i) => ({ key: ++k, ...i })),
+    }));
+  });
   const [message, setMessage] = useState("");
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -104,7 +139,9 @@ export function RecipeForm({ foods }: { foods: FoodOption[] }) {
         };
         setMessage("");
         start(async () => {
-          const result = await createRecipeAction(payload);
+          const result = initial
+            ? await updateRecipeAction(initial.id, payload)
+            : await createRecipeAction(payload);
           if (!result.ok || !result.id) {
             setMessage(result.message);
             return;
@@ -263,7 +300,11 @@ export function RecipeForm({ foods }: { foods: FoodOption[] }) {
           {filled} {filled === 1 ? "ingredient" : "ingredients"}
         </span>
         <button className="button" disabled={pending || !filled}>
-          {pending ? "Saving recipe…" : "Save recipe"}
+          {pending
+            ? "Saving…"
+            : initial
+              ? "Save changes"
+              : "Save recipe"}
         </button>
       </div>
       <p role="status" className="form-message">

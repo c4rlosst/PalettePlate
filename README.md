@@ -26,6 +26,7 @@ For teammates using Docker: configure the `MYSQL_*` variables and a matching `DA
 ## Try the first slices
 
 - Sign up, verify email, sign in, sign out, reset your password with an emailed code, and edit your profile.
+- Recipes are a cookbook: every signed-in user can read them, but only admins can add, edit or delete them. Sign up and verify your email first, then make that account an admin with `npm run user:role -- you@example.com admin` (use `user` instead of `admin` to take the role away). The role is stored on the server and can never be set from the browser.
 - Open Foods; search Filipino or English names, filter category/color, and like/dislike foods.
 - Log a meal, select foods and Philippine time, then view it on Today. Delete a meal to correct an entry.
 - Log four distinct fruit/vegetable colors; repeats and grains do not add colors. Liked foods from missing colors appear as suggestions.

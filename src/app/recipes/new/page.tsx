@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { Setup } from "@/components/setup";
 import { RecipeForm } from "@/components/recipe-form";
@@ -12,6 +13,7 @@ export default async function NewRecipe() {
         <Setup />
       </Shell>
     );
+  if (actor.role !== "admin") redirect("/recipes");
   const foods = await browseFoods(actor, {});
   return (
     <Shell active="Recipes">

@@ -27,6 +27,7 @@ import {
   setPreference,
   saveProfile,
   createRecipe,
+  updateRecipe,
   listRecipes,
   getRecipe,
   deleteRecipe,
@@ -82,44 +83,49 @@ describe("default-deny authorization", () => {
   });
   it("does not touch the database for recipes when anonymous or unverified", async () => {
     const unverified = { ...alice, emailVerified: false };
-    await expect(createRecipe(null, validRecipe)).rejects.toThrow();
-    await expect(createRecipe(unverified, validRecipe)).rejects.toThrow();
     await expect(listRecipes(null)).rejects.toThrow();
+    await expect(listRecipes(unverified)).rejects.toThrow();
     await expect(getRecipe(unverified, recipeId)).rejects.toThrow();
+    await expect(createRecipe(null, validRecipe)).rejects.toThrow();
     await expect(deleteRecipe(null, recipeId)).rejects.toThrow();
     expect(state.calls).toHaveLength(0);
   });
-  it("rejects invalid recipes before any query", async () => {
+  it("lets verified users read recipes but only admins change them", async () => {
+    await expect(listRecipes(alice)).resolves.toEqual([]);
+    expect(state.calls.length).toBeGreaterThan(0);
+    state.calls = [];
+    await expect(createRecipe(alice, validRecipe)).rejects.toThrow(
+      "Administrator",
+    );
     await expect(
-      createRecipe(alice, { ...validRecipe, name: "  " }),
+      updateRecipe(alice, recipeId, validRecipe),
+    ).rejects.toThrow("Administrator");
+    await expect(deleteRecipe(alice, recipeId)).rejects.toThrow(
+      "Administrator",
+    );
+    await expect(
+      createRecipe({ ...alice, role: "moderator" }, validRecipe),
+    ).rejects.toThrow("Administrator");
+    expect(state.calls).toHaveLength(0);
+  });
+  it("rejects invalid recipes from admins before any query", async () => {
+    const admin: Actor = { ...alice, id: "admin1", role: "admin" };
+    await expect(
+      createRecipe(admin, { ...validRecipe, name: "  " }),
     ).rejects.toThrow();
     await expect(
-      createRecipe(alice, { ...validRecipe, sections: [] }),
+      createRecipe(admin, { ...validRecipe, sections: [] }),
     ).rejects.toThrow();
     await expect(
-      createRecipe(alice, {
+      createRecipe(admin, {
         ...validRecipe,
         sections: [{ title: "", items: [{ amount: "1", item: "" }] }],
       }),
     ).rejects.toThrow();
+    await expect(
+      updateRecipe(admin, "not-a-uuid", validRecipe),
+    ).rejects.toThrow();
     expect(state.calls).toHaveLength(0);
-  });
-  it("scopes the recipe list to the authenticated user", async () => {
-    await listRecipes(alice);
-    expect(state.calls[0].sql).toContain("`recipes`.`user_id` = ?");
-    expect(state.calls[0].params[0]).toBe("alice");
-  });
-  it("prevents reading or deleting another user’s recipe", async () => {
-    state.rows = [
-      [recipeId, "bob", "N", "D", null, "dinner", new Date()],
-    ] as unknown as string[][];
-    await expect(getRecipe(alice, recipeId)).rejects.toThrow("access");
-    expect(state.calls).toHaveLength(1);
-    state.calls = [];
-    state.rows = [["bob"]];
-    await expect(deleteRecipe(alice, recipeId)).rejects.toThrow("access");
-    expect(state.calls).toHaveLength(1);
-    expect(state.calls[0].sql).toMatch(/^select/);
   });
   it("ignores attempted role and owner injection in profile updates", async () => {
     await saveProfile(alice, {

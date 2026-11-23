@@ -15,17 +15,20 @@ export default async function Recipes() {
       </Shell>
     );
   const list = await listRecipes(actor);
+  const isAdmin = actor.role === "admin";
   return (
     <Shell active="Recipes">
       <div className="page-heading">
         <div>
           <h1>Recipes</h1>
-          <p>Your own dishes, with every ingredient and step.</p>
+          <p>Filipino dishes with every ingredient and step.</p>
         </div>
-        <Link href="/recipes/new" className="button">
-          <Plus size={17} />
-          New recipe
-        </Link>
+        {isAdmin && (
+          <Link href="/recipes/new" className="button">
+            <Plus size={17} />
+            New recipe
+          </Link>
+        )}
       </div>
       {list.length ? (
         <div className="recipe-grid">
@@ -59,12 +62,15 @@ export default async function Recipes() {
           </span>
           <h3>No recipes yet.</h3>
           <p>
-            Write down a dish you make, with its ingredients and steps, so you
-            can share it later.
+            {isAdmin
+              ? "Add the first dish, with its ingredients and steps."
+              : "New recipes will show up here soon."}
           </p>
-          <Link href="/recipes/new" className="button">
-            Write your first recipe
-          </Link>
+          {isAdmin && (
+            <Link href="/recipes/new" className="button">
+              Write the first recipe
+            </Link>
+          )}
         </div>
       )}
     </Shell>

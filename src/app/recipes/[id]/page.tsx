@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Setup } from "@/components/setup";
 import { DeleteRecipe } from "@/components/recipe-form";
@@ -106,7 +106,14 @@ export default async function RecipePage({
             </ol>
           </section>
         )}
-        <DeleteRecipe id={recipe.id} />
+        {actor.role === "admin" && (
+          <div className="admin-actions">
+            <Link href={`/recipes/${recipe.id}/edit`} className="button">
+              <Pencil size={16} /> Edit recipe
+            </Link>
+            <DeleteRecipe id={recipe.id} />
+          </div>
+        )}
       </article>
     </Shell>
   );

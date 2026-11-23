@@ -8,7 +8,7 @@ export function requireOwner(actor: Actor | null, ownerId: string) {
   if (actor.id !== ownerId)
     throw new Error("You do not have access to this item.");
 }
-export function requireAdmin(actor: Actor | null) {
+export function requireAdmin(actor: Actor | null): asserts actor is Actor {
   requireVerified(actor);
   if (actor.role !== "admin")
     throw new Error("Administrator access is required.");
