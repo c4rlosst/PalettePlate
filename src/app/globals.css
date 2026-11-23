@@ -911,6 +911,13 @@ input[type="search"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
+  align-items: start;
+  margin-bottom: 4px;
+}
+.form-row select,
+.form-row input {
+  height: 52px;
+  font-weight: 600;
 }
 .save-bar {
   position: sticky;

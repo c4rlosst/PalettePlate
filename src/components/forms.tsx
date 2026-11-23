@@ -154,7 +154,9 @@ export function MealForm({
           </select>
         </label>
         <label>
-          When you ate <span className="muted">(Philippine time)</span>
+          <span>
+            When you ate <small>(Philippine time)</small>
+          </span>
           <input
             required
             type="datetime-local"
@@ -271,7 +273,9 @@ export function ProfileForm({
         />
       </label>
       <label>
-        Gender <span className="muted">(optional)</span>
+        <span>
+          Gender <small>(optional)</small>
+        </span>
         <input
           name="gender"
           maxLength={50}
@@ -279,7 +283,9 @@ export function ProfileForm({
         />
       </label>
       <label>
-        Contact number <span className="muted">(optional)</span>
+        <span>
+          Contact number <small>(optional)</small>
+        </span>
         <input
           name="contactNumber"
           type="tel"
