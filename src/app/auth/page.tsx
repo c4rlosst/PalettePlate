@@ -3,7 +3,6 @@ import { AuthForm } from "@/components/auth-form";
 export default function Auth() {
   return (
     <main id="main-content" className="auth-page">
-      <h1 className="visually-hidden">Sign in to PalettePlate</h1>
       <Link className="brand" href="/">
         <img
           className="brand-logo"
