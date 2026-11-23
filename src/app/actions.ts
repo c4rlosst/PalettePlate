@@ -7,15 +7,22 @@ import {
   logMeal,
   deleteEntry,
   saveProfile,
+  createRecipe,
+  deleteRecipe,
 } from "@/server/data";
-export type ActionResult = { ok: boolean; message: string };
+export type ActionResult = { ok: boolean; message: string; id?: string };
 async function run(work: () => Promise<unknown>): Promise<ActionResult> {
   try {
-    await work();
+    const result = await work();
     revalidatePath("/");
     revalidatePath("/foods");
     revalidatePath("/profile");
-    return { ok: true, message: "Saved." };
+    revalidatePath("/recipes");
+    return {
+      ok: true,
+      message: "Saved.",
+      ...(typeof result === "string" ? { id: result } : {}),
+    };
   } catch (e) {
     return {
       ok: false,
@@ -36,6 +43,12 @@ export async function mealAction(input: unknown) {
 }
 export async function deleteMealAction(id: string) {
   return run(async () => deleteEntry(await currentActor(), id));
+}
+export async function createRecipeAction(input: unknown) {
+  return run(async () => createRecipe(await currentActor(), input));
+}
+export async function deleteRecipeAction(id: string) {
+  return run(async () => deleteRecipe(await currentActor(), id));
 }
 export async function profileAction(input: unknown) {
   return run(async () => saveProfile(await currentActor(), input));

@@ -26,7 +26,17 @@ import {
   deleteEntry,
   setPreference,
   saveProfile,
+  createRecipe,
+  listRecipes,
+  getRecipe,
+  deleteRecipe,
 } from "../src/server/data";
+const recipeId = "43cf301d-fdf4-4079-a52c-dd440b9c43a2";
+const validRecipe = {
+  name: "Kare-kare",
+  mealType: "dinner",
+  sections: [{ title: "Meat", items: [{ amount: "1 kg", item: "oxtail" }] }],
+};
 const alice: Actor = { id: "alice", role: "user", emailVerified: true };
 beforeEach(() => {
   state.calls = [];
@@ -67,6 +77,47 @@ describe("default-deny authorization", () => {
     await expect(
       deleteEntry(alice, "43cf301d-fdf4-4079-a52c-dd440b9c43a2"),
     ).rejects.toThrow("access");
+    expect(state.calls).toHaveLength(1);
+    expect(state.calls[0].sql).toMatch(/^select/);
+  });
+  it("does not touch the database for recipes when anonymous or unverified", async () => {
+    const unverified = { ...alice, emailVerified: false };
+    await expect(createRecipe(null, validRecipe)).rejects.toThrow();
+    await expect(createRecipe(unverified, validRecipe)).rejects.toThrow();
+    await expect(listRecipes(null)).rejects.toThrow();
+    await expect(getRecipe(unverified, recipeId)).rejects.toThrow();
+    await expect(deleteRecipe(null, recipeId)).rejects.toThrow();
+    expect(state.calls).toHaveLength(0);
+  });
+  it("rejects invalid recipes before any query", async () => {
+    await expect(
+      createRecipe(alice, { ...validRecipe, name: "  " }),
+    ).rejects.toThrow();
+    await expect(
+      createRecipe(alice, { ...validRecipe, sections: [] }),
+    ).rejects.toThrow();
+    await expect(
+      createRecipe(alice, {
+        ...validRecipe,
+        sections: [{ title: "", items: [{ amount: "1", item: "" }] }],
+      }),
+    ).rejects.toThrow();
+    expect(state.calls).toHaveLength(0);
+  });
+  it("scopes the recipe list to the authenticated user", async () => {
+    await listRecipes(alice);
+    expect(state.calls[0].sql).toContain("`recipes`.`user_id` = ?");
+    expect(state.calls[0].params[0]).toBe("alice");
+  });
+  it("prevents reading or deleting another user’s recipe", async () => {
+    state.rows = [
+      [recipeId, "bob", "N", "D", null, "dinner", new Date()],
+    ] as unknown as string[][];
+    await expect(getRecipe(alice, recipeId)).rejects.toThrow("access");
+    expect(state.calls).toHaveLength(1);
+    state.calls = [];
+    state.rows = [["bob"]];
+    await expect(deleteRecipe(alice, recipeId)).rejects.toThrow("access");
     expect(state.calls).toHaveLength(1);
     expect(state.calls[0].sql).toMatch(/^select/);
   });

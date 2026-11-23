@@ -139,6 +139,7 @@ export const recipes = mysqlTable("recipes", {
     .references(() => user.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 160 }).notNull(),
   description: text("description").notNull(),
+  instructions: text("instructions"),
   mealType: mysqlEnum("meal_type", [
     "breakfast",
     "lunch",
@@ -150,15 +151,19 @@ export const recipes = mysqlTable("recipes", {
 export const recipeIngredients = mysqlTable(
   "recipe_ingredients",
   {
+    id: varchar("id", { length: 36 }).primaryKey(),
     recipeId: varchar("recipe_id", { length: 36 })
       .notNull()
       .references(() => recipes.id, { onDelete: "cascade" }),
-    foodId: varchar("food_id", { length: 36 })
-      .notNull()
-      .references(() => foods.id, { onDelete: "restrict" }),
-    amount: varchar("amount", { length: 100 }).notNull(),
+    foodId: varchar("food_id", { length: 36 }).references(() => foods.id, {
+      onDelete: "restrict",
+    }),
+    section: varchar("section", { length: 80 }).notNull().default(""),
+    position: int("position").notNull().default(0),
+    item: varchar("item", { length: 200 }).notNull(),
+    amount: varchar("amount", { length: 100 }).notNull().default(""),
   },
-  (t) => [primaryKey({ columns: [t.recipeId, t.foodId] })],
+  (t) => [index("recipe_ingredients_recipe_idx").on(t.recipeId, t.position)],
 );
 export const favouriteRecipes = mysqlTable(
   "favourite_recipes",

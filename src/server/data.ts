@@ -1,8 +1,17 @@
 import "server-only";
-import { and, eq, gte, lt, like, or, inArray, desc } from "drizzle-orm";
+import { and, asc, eq, gte, lt, like, or, inArray, desc } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { foods, preferences, entries, entryFoods, user } from "@/db/schema";
+import {
+  foods,
+  preferences,
+  entries,
+  entryFoods,
+  entryRecipes,
+  recipes,
+  recipeIngredients,
+  user,
+} from "@/db/schema";
 import { colours, dayBounds, manilaDay } from "@/lib/rainbow";
 import { requireVerified, requireOwner, type Actor } from "./policy";
 const foodQuery = z.object({
@@ -174,6 +183,175 @@ export async function deleteEntry(actor: Actor | null, input: unknown) {
   await db
     .delete(entries)
     .where(and(eq(entries.id, id), eq(entries.userId, actor.id)));
+}
+const recipeInput = z.object({
+  name: z.string().trim().min(1, "Give your recipe a name.").max(160),
+  description: z.string().trim().max(2000).default(""),
+  instructions: z.string().trim().max(8000).default(""),
+  mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]),
+  sections: z
+    .array(
+      z.object({
+        title: z.string().trim().max(80).default(""),
+        items: z
+          .array(
+            z.object({
+              amount: z.string().trim().max(100).default(""),
+              item: z
+                .string()
+                .trim()
+                .min(1, "Every ingredient needs a name.")
+                .max(200),
+              foodId: z.string().max(36).default(""),
+            }),
+          )
+          .min(1)
+          .max(40),
+      }),
+    )
+    .min(1, "Add at least one ingredient.")
+    .max(8),
+});
+export async function createRecipe(actor: Actor | null, input: unknown) {
+  requireVerified(actor);
+  const data = recipeInput.parse(input);
+  const lines = data.sections.flatMap((s) =>
+    s.items.map((i) => ({ ...i, section: s.title })),
+  );
+  if (lines.length > 80)
+    throw new Error("A recipe can have up to 80 ingredients.");
+  const foodIds = [...new Set(lines.map((l) => l.foodId).filter(Boolean))];
+  const db = getDb();
+  const id = crypto.randomUUID();
+  await db.transaction(async (tx) => {
+    if (foodIds.length) {
+      const found = await tx
+        .select({ id: foods.id })
+        .from(foods)
+        .where(and(inArray(foods.id, foodIds), eq(foods.archived, false)));
+      if (found.length !== foodIds.length)
+        throw new Error("Some linked foods are unavailable. Refresh and retry.");
+    }
+    await tx.insert(recipes).values({
+      id,
+      userId: actor.id,
+      name: data.name,
+      description: data.description,
+      instructions: data.instructions || null,
+      mealType: data.mealType,
+    });
+    await tx.insert(recipeIngredients).values(
+      lines.map((l, position) => ({
+        id: crypto.randomUUID(),
+        recipeId: id,
+        foodId: l.foodId || null,
+        section: l.section,
+        position,
+        item: l.item,
+        amount: l.amount,
+      })),
+    );
+  });
+  return id;
+}
+export async function listRecipes(actor: Actor | null) {
+  requireVerified(actor);
+  const db = getDb();
+  const mine = await db
+    .select({
+      id: recipes.id,
+      name: recipes.name,
+      description: recipes.description,
+      mealType: recipes.mealType,
+      createdAt: recipes.createdAt,
+    })
+    .from(recipes)
+    .where(eq(recipes.userId, actor.id))
+    .orderBy(desc(recipes.createdAt))
+    .limit(100);
+  if (!mine.length) return [];
+  const lines = await db
+    .select({
+      recipeId: recipeIngredients.recipeId,
+      colour: foods.colour,
+      category: foods.category,
+    })
+    .from(recipeIngredients)
+    .leftJoin(foods, eq(foods.id, recipeIngredients.foodId))
+    .where(
+      inArray(
+        recipeIngredients.recipeId,
+        mine.map((r) => r.id),
+      ),
+    );
+  return mine.map((r) => {
+    const own = lines.filter((l) => l.recipeId === r.id);
+    return {
+      ...r,
+      ingredientCount: own.length,
+      colours: [
+        ...new Set(
+          own
+            .filter(
+              (l) =>
+                l.colour && (l.category === "fruit" || l.category === "vegetable"),
+            )
+            .map((l) => l.colour!),
+        ),
+      ],
+    };
+  });
+}
+export async function getRecipe(actor: Actor | null, input: unknown) {
+  requireVerified(actor);
+  const id = z.string().uuid().parse(input);
+  const db = getDb();
+  const [recipe] = await db
+    .select()
+    .from(recipes)
+    .where(eq(recipes.id, id))
+    .limit(1);
+  if (!recipe) throw new Error("This recipe was not found.");
+  requireOwner(actor, recipe.userId);
+  const ingredients = await db
+    .select({
+      id: recipeIngredients.id,
+      section: recipeIngredients.section,
+      position: recipeIngredients.position,
+      item: recipeIngredients.item,
+      amount: recipeIngredients.amount,
+      colour: foods.colour,
+      category: foods.category,
+    })
+    .from(recipeIngredients)
+    .leftJoin(foods, eq(foods.id, recipeIngredients.foodId))
+    .where(eq(recipeIngredients.recipeId, id))
+    .orderBy(asc(recipeIngredients.position));
+  return { recipe, ingredients };
+}
+export async function deleteRecipe(actor: Actor | null, input: unknown) {
+  requireVerified(actor);
+  const id = z.string().uuid().parse(input);
+  const db = getDb();
+  const [recipe] = await db
+    .select({ userId: recipes.userId })
+    .from(recipes)
+    .where(eq(recipes.id, id))
+    .limit(1);
+  if (!recipe) throw new Error("This recipe was not found.");
+  requireOwner(actor, recipe.userId);
+  const [used] = await db
+    .select({ recipeId: entryRecipes.recipeId })
+    .from(entryRecipes)
+    .where(eq(entryRecipes.recipeId, id))
+    .limit(1);
+  if (used)
+    throw new Error(
+      "This recipe is part of a logged meal, so it cannot be deleted yet.",
+    );
+  await db
+    .delete(recipes)
+    .where(and(eq(recipes.id, id), eq(recipes.userId, actor.id)));
 }
 export async function getProfile(actor: Actor | null) {
   requireVerified(actor);
