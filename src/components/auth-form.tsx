@@ -14,8 +14,8 @@ const copy: Record<View, { title: string; subtitle: string }> = {
     subtitle: "Familiar foods. Small discoveries. Your own pace.",
   },
   signup: {
-    title: "Make room for more colour.",
-    subtitle: "Create an account to save your favourites and log your meals.",
+    title: "Make room for more color.",
+    subtitle: "Create an account to save your favorites and log your meals.",
   },
   verify: {
     title: "Check your email.",

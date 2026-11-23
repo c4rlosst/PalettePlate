@@ -33,7 +33,7 @@ export default async function Foods({
       <div className="page-heading">
         <div>
           <h1>Foods</h1>
-          <p>Familiar favourites. A few new discoveries.</p>
+          <p>Familiar favorites. A few new discoveries.</p>
         </div>
       </div>
       <form className="food-filters" action="/foods">
@@ -47,9 +47,9 @@ export default async function Foods({
           />
         </label>
         <label>
-          Colour
+          Color
           <select name="colour" defaultValue={params.colour || ""}>
-            <option value="">All colours</option>
+            <option value="">All colors</option>
             {colours.map((c) => (
               <option value={c} key={c}>
                 {colourLabels[c]}

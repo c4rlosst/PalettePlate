@@ -16,11 +16,11 @@ export const viewport: Viewport = {
 };
 export const metadata: Metadata = {
   title: {
-    default: "PalettePlate — A little colour, every day",
+    default: "PalettePlate — A little color, every day",
     template: "%s | PalettePlate",
   },
   description:
-    "Explore familiar Filipino foods, log your meals, and discover more colour at your own pace.",
+    "Explore familiar Filipino foods, log your meals, and discover more color at your own pace.",
 };
 export default function RootLayout({
   children,

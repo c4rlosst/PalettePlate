@@ -322,7 +322,6 @@ main:not(.auth-page):not(.error-page) {
   gap: 20px;
   background: white;
   border: 1px solid var(--line);
-  border-left: 6px solid var(--sun);
   border-radius: 20px;
   padding: 18px 22px;
   margin-bottom: 24px;

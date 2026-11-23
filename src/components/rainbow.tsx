@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { colours, colourLabels, type Colour } from "@/lib/rainbow";
 export function Rainbow({ eaten = [] }: { eaten?: Colour[] }) {
   return (
-    <div className="rainbow" aria-label="Today's food colours">
+    <div className="rainbow" aria-label="Today's food colors">
       {colours.map((colour) => (
         <div
           className={`colour-item ${eaten.includes(colour) ? "eaten" : ""}`}

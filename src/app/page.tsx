@@ -61,9 +61,9 @@ export default async function Today() {
           </p>
           <h1>
             {name ? `Hello, ${name}.` : "Hello there."}{" "}
-            <em>Ready for more colour?</em>
+            <em>Ready for more color?</em>
           </h1>
-          <p>Good food, a little more colour, at your own pace.</p>
+          <p>Good food, a little more color, at your own pace.</p>
           <Link href="/log" className="button button-sun">
             <Plus size={18} />
             Log a meal
@@ -77,11 +77,11 @@ export default async function Today() {
             } as React.CSSProperties
           }
           role="img"
-          aria-label={`${rainbow.count} colours enjoyed today. The goal is four.`}
+          aria-label={`${rainbow.count} colors enjoyed today. The goal is four.`}
         >
           <div>
             <strong>{rainbow.count}</strong>
-            <span>of 4 colours</span>
+            <span>of 4 colors</span>
           </div>
         </div>
       </section>
@@ -97,7 +97,7 @@ export default async function Today() {
         <div className="notice">
           <div>
             <strong>A space for your everyday meals.</strong>
-            <span>Save your favourites and start your own palette.</span>
+            <span>Save your favorites and start your own palette.</span>
           </div>
           <Link className="button button-small" href="/auth">
             Get started
@@ -115,10 +115,10 @@ export default async function Today() {
           <div>
             <h2>Your daily palette</h2>
             <p className="section-description">
-              Good things come in different colours.
+              Good things come in different colors.
             </p>
           </div>
-          <span className="subtle-pill">{rainbow.count} colours enjoyed</span>
+          <span className="subtle-pill">{rainbow.count} colors enjoyed</span>
         </div>
         <Rainbow eaten={rainbow.eaten} />
         <div className="rainbow-bottom">
@@ -126,12 +126,12 @@ export default async function Today() {
             {rainbow.complete ? (
               <>
                 <Check size={16} />
-                You’ve enjoyed four or more colours today. Keep exploring at
+                You’ve enjoyed four or more colors today. Keep exploring at
                 your own pace.
               </>
             ) : (
               <>
-                Try fruits and vegetables from four colours, at your own pace.
+                Try fruits and vegetables from four colors, at your own pace.
               </>
             )}
           </p>
@@ -193,7 +193,7 @@ export default async function Today() {
           {suggestions.length ? (
             <>
               <p>
-                A familiar favourite could bring another colour to your day.
+                A familiar favorite could bring another color to your day.
               </p>
               {suggestions.map((f) => (
                 <Link
@@ -213,8 +213,8 @@ export default async function Today() {
           ) : (
             <>
               <p>
-                Find familiar foods and mark your favourites. We’ll suggest ones
-                that bring a little more colour.
+                Find familiar foods and mark your favorites. We’ll suggest ones
+                that bring a little more color.
               </p>
               <Link className="button button-secondary" href="/foods">
                 <Search size={16} />

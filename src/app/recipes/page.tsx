@@ -14,11 +14,11 @@ export default function Recipes() {
         <BookOpen size={32} />
         <h2>Your recipe space is coming next.</h2>
         <p>
-          For now, mark your favourite foods to see colour suggestions on your
+          For now, mark your favorite foods to see color suggestions on your
           daily plate.
         </p>
         <Link href="/foods" className="button">
-          Find favourite foods
+          Find favorite foods
         </Link>
       </div>
     </Shell>

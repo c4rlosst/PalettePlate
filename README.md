@@ -26,16 +26,16 @@ For teammates using Docker: configure the `MYSQL_*` variables and a matching `DA
 ## Try the first slices
 
 - Sign up, verify email, sign in, sign out, reset your password with an emailed code, and edit your profile.
-- Open Foods; search Filipino or English names, filter category/colour, and like/dislike foods.
+- Open Foods; search Filipino or English names, filter category/color, and like/dislike foods.
 - Log a meal, select foods and Philippine time, then view it on Today. Delete a meal to correct an entry.
-- Log four distinct fruit/vegetable colours; repeats and grains do not add colours. Liked foods from missing colours appear as suggestions.
+- Log four distinct fruit/vegetable colors; repeats and grains do not add colors. Liked foods from missing colors appear as suggestions.
 - `npm test` tests rainbow boundaries and server-side ownership/role checks. For real MySQL isolation tests, set `RUN_DB_TESTS=1` before running `npm test` (in PowerShell: `$env:RUN_DB_TESTS=1; npm test`); they insert and remove only uniquely identified test users. `npm run typecheck` checks types. `npm run build` checks the production bundle.
 
 ## Food sources and cleaning
 
 `scripts/seed-foods.ts` contains a small repeatable, validated transcription of food names from [DA-AMAS, October 26–November 1, 2026](https://www.da.gov.ph/wp-content/uploads/2026/11/Weekly-Average-Prices-October-26-November-1-2026.pdf). The [DA portal](https://www.da.gov.ph/price-monitoring/) states public domain unless otherwise stated; no contrary notice was found for this list when checked on November 10, 2026. No price or nutritional data is imported. Each row stores the source, rights notice, and mapping provenance.
 
-Cleaning trims whitespace, normalizes Unicode to NFC, validates names/categories/colours, and uses stable IDs. Rerunning preserves existing records and preferences. Filipino translations and colour classifications are project annotations, not DA classifications. Red: tomato/watermelon; orange: squash/carrot/ripe papaya; yellow: ripe mango; green: bitter melon/pechay/sitaw/chayote/avocado; blue-purple: eggplant skin; white-brown: potato/garlic/banana flesh/rice. Grains are searchable but excluded from the rainbow count. This is an initial UX taxonomy, not laboratory pigment analysis. Values refer to the edible part described; cultivar and preparation differences remain a limitation. Nutritional values are null and flagged; do not invent values or scrape restricted PhilFCT data.
+Cleaning trims whitespace, normalizes Unicode to NFC, validates names/categories/colors, and uses stable IDs. Rerunning preserves existing records and preferences. Filipino translations and color classifications are project annotations, not DA classifications. Red: tomato/watermelon; orange: squash/carrot/ripe papaya; yellow: ripe mango; green: bitter melon/pechay/sitaw/chayote/avocado; blue-purple: eggplant skin; white-brown: potato/garlic/banana flesh/rice. Grains are searchable but excluded from the rainbow count. This is an initial UX taxonomy, not laboratory pigment analysis. Values refer to the edible part described; cultivar and preparation differences remain a limitation. Nutritional values are null and flagged; do not invent values or scrape restricted PhilFCT data.
 
 ## Database changes and backups
 

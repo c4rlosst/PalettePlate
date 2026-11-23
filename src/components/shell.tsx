@@ -59,7 +59,7 @@ export function Shell({
       </header>
       <main id="main-content">{children}</main>
       <footer className="page-footer">
-        Made for everyday Filipino meals. Small choices, more colour, your own
+        Made for everyday Filipino meals. Small choices, more color, your own
         pace.
       </footer>
       <nav className="mobile-nav" aria-label="Mobile navigation">
