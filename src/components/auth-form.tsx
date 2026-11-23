@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import type { FormEvent, InputHTMLAttributes, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, KeyRound, Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, KeyRound, Lock, Mail, User } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { colours } from "@/lib/rainbow";
 
@@ -30,12 +30,31 @@ const copy: Record<View, { title: string; subtitle: string }> = {
 function Field({
   icon,
   label,
+  type,
   ...props
 }: { icon: ReactNode; label: string } & InputHTMLAttributes<HTMLInputElement>) {
+  const [shown, setShown] = useState(false);
+  const isPassword = type === "password";
   return (
-    <label className="auth-field">
+    <label className={`auth-field ${isPassword ? "has-toggle" : ""}`}>
       <span className="auth-field-icon">{icon}</span>
-      <input {...props} placeholder={label} aria-label={label} />
+      <input
+        {...props}
+        type={isPassword && shown ? "text" : type}
+        placeholder={label}
+        aria-label={label}
+      />
+      {isPassword && (
+        <button
+          type="button"
+          className="auth-eye"
+          aria-label={shown ? "Hide password" : "Show password"}
+          aria-pressed={shown}
+          onClick={() => setShown((s) => !s)}
+        >
+          {shown ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      )}
     </label>
   );
 }
