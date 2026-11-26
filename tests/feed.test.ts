@@ -30,6 +30,11 @@ import {
   deleteComment,
   deletePost,
 } from "../src/server/feed";
+import {
+  getPublicProfile,
+  setAvatar,
+  removeAvatar,
+} from "../src/server/people";
 const alice: Actor = { id: "alice", role: "user", emailVerified: true };
 const uuid = "43cf301d-fdf4-4079-a52c-dd440b9c43a2";
 beforeEach(() => {
@@ -78,6 +83,44 @@ describe("feed permissions", () => {
   it("only lists published posts", async () => {
     await listFeed(alice);
     expect(state.calls[0].sql).toContain("`posts`.`status` = ?");
+    expect(state.calls[0].params).toContain("approved");
+  });
+});
+describe("public profiles and profile pictures", () => {
+  it("does not touch the database for anonymous or unverified users", async () => {
+    const unverified = { ...alice, emailVerified: false };
+    for (const actor of [null, unverified]) {
+      await expect(getPublicProfile(actor, "bob")).rejects.toThrow();
+      await expect(setAvatar(actor, uuid)).rejects.toThrow();
+      await expect(removeAvatar(actor)).rejects.toThrow();
+    }
+    expect(state.calls).toHaveLength(0);
+  });
+  it("never reads private account fields for a public profile", async () => {
+    await getPublicProfile(alice, "bob");
+    const sql = state.calls.map((c) => c.sql).join("\n");
+    expect(sql).toContain("`users`");
+    for (const secret of [
+      "`email`",
+      "`contact_number`",
+      "`region`",
+      "`gender`",
+      "`role`",
+    ])
+      expect(sql).not.toContain(secret);
+  });
+  it("only accepts the caller's own profile-picture upload", async () => {
+    await expect(setAvatar(alice, "not-a-uuid")).rejects.toThrow();
+    expect(state.calls).toHaveLength(0);
+    await expect(setAvatar(alice, uuid)).rejects.toThrow("not available");
+    expect(state.calls).toHaveLength(1);
+    expect(state.calls[0].params).toContain("alice");
+    expect(state.calls[0].sql).toContain("`images`.`owner_id` = ?");
+  });
+  it("limits a profile page to that person's published posts", async () => {
+    await listFeed(alice, { authorId: "bob" });
+    expect(state.calls[0].sql).toContain("`posts`.`user_id` = ?");
+    expect(state.calls[0].params).toContain("bob");
     expect(state.calls[0].params).toContain("approved");
   });
 });

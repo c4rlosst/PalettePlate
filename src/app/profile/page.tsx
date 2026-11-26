@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { AvatarUploader } from "@/components/avatar-uploader";
 import { Shell } from "@/components/shell";
 import { Setup } from "@/components/setup";
 import { ProfileForm } from "@/components/forms";
@@ -22,8 +24,16 @@ export default async function Profile() {
           <p>A few details to make this space yours.</p>
         </div>
       </div>
+      {profile && (
+        <AvatarUploader name={profile.name} image={profile.image} />
+      )}
       {profile && <ProfileForm profile={profile} />}
-      <SignOut />
+      <div className="profile-links">
+        <Link href={`/people/${actor.id}`} className="button button-secondary">
+          See your public page
+        </Link>
+        <SignOut />
+      </div>
     </Shell>
   );
 }

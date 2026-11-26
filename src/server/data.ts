@@ -403,6 +403,7 @@ export async function getProfile(actor: Actor | null) {
   const [profile] = await getDb()
     .select({
       name: user.name,
+      image: user.image,
       email: user.email,
       region: user.region,
       gender: user.gender,

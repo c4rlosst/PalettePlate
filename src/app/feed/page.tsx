@@ -1,19 +1,12 @@
 import { Camera } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { Setup } from "@/components/setup";
-import { PostComposer, PostCard, type FeedPost } from "@/components/feed";
+import { PostComposer, PostCard } from "@/components/feed";
 import { pageActor } from "@/server/page-access";
 import { listFeed } from "@/server/feed";
+import { toFeedPosts } from "@/server/feed-view";
 import { listRecipes } from "@/server/data";
 export const dynamic = "force-dynamic";
-const stamp = (date: Date) =>
-  new Intl.DateTimeFormat("en-PH", {
-    timeZone: "Asia/Manila",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
 export default async function Feed() {
   const actor = await pageActor();
   if (!actor)
@@ -26,26 +19,7 @@ export default async function Feed() {
     listFeed(actor),
     listRecipes(actor),
   ]);
-  const isAdmin = actor.role === "admin";
-  const posts: FeedPost[] = rows.map((p) => ({
-    id: p.id,
-    authorName: p.authorName,
-    when: stamp(p.createdAt),
-    content: p.content,
-    imageId: p.imageId,
-    recipeId: p.recipeId,
-    recipeName: p.recipeName,
-    likeCount: p.likeCount,
-    liked: p.liked,
-    canDelete: isAdmin || p.userId === actor.id,
-    comments: p.comments.map((c) => ({
-      id: c.id,
-      authorName: c.authorName,
-      content: c.content,
-      when: stamp(c.createdAt),
-      canDelete: isAdmin || c.userId === actor.id,
-    })),
-  }));
+  const posts = toFeedPosts(rows, actor);
   return (
     <Shell active="Feed">
       <div className="feed">
@@ -61,7 +35,7 @@ export default async function Feed() {
         {posts.length ? (
           <div className="post-list">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.id} post={post} viewerId={actor.id} />
             ))}
           </div>
         ) : (

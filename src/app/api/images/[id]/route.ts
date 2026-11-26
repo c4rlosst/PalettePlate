@@ -31,8 +31,12 @@ export async function GET(
     .where(eq(images.id, id))
     .limit(1);
   if (!image) return notFound();
-  // Visible to its owner, to admins, and to everyone once attached to a published post.
-  let allowed = image.ownerId === actor.id || actor.role === "admin";
+  // Visible to its owner, to admins, to everyone when it is a profile picture,
+  // and to everyone once attached to a published post.
+  let allowed =
+    image.ownerId === actor.id ||
+    actor.role === "admin" ||
+    image.path.startsWith("avatars/");
   if (!allowed && image.postId) {
     const [post] = await db
       .select({ id: posts.id })

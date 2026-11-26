@@ -61,7 +61,10 @@ export async function createPost(actor: Actor | null, input: unknown) {
   });
   return postId;
 }
-export async function listFeed(actor: Actor | null) {
+export async function listFeed(
+  actor: Actor | null,
+  options: { authorId?: string } = {},
+) {
   requireVerified(actor);
   const db = getDb();
   const rows = await db
@@ -71,6 +74,7 @@ export async function listFeed(actor: Actor | null) {
       content: posts.content,
       createdAt: posts.createdAt,
       authorName: user.name,
+      authorImage: user.image,
       recipeId: posts.recipeId,
       recipeName: recipes.name,
       imageId: images.id,
@@ -79,7 +83,12 @@ export async function listFeed(actor: Actor | null) {
     .innerJoin(user, eq(user.id, posts.userId))
     .leftJoin(recipes, eq(recipes.id, posts.recipeId))
     .leftJoin(images, eq(images.postId, posts.id))
-    .where(eq(posts.status, "approved"))
+    .where(
+      and(
+        eq(posts.status, "approved"),
+        options.authorId ? eq(posts.userId, options.authorId) : undefined,
+      ),
+    )
     .orderBy(desc(posts.createdAt))
     .limit(30);
   const unique = [...new Map(rows.map((r) => [r.id, r])).values()];
@@ -98,6 +107,7 @@ export async function listFeed(actor: Actor | null) {
         content: comments.content,
         createdAt: comments.createdAt,
         authorName: user.name,
+        authorImage: user.image,
       })
       .from(comments)
       .innerJoin(user, eq(user.id, comments.userId))

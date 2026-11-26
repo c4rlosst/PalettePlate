@@ -2,6 +2,7 @@
 import { useOptimistic, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { BookOpen, Heart, ImagePlus, MessageCircle, Trash2, X } from "lucide-react";
+import { Avatar } from "@/components/avatar";
 import {
   createPostAction,
   toggleReactionAction,
@@ -157,6 +158,8 @@ export function PostComposer({
 
 export type FeedPost = {
   id: string;
+  authorId: string;
+  authorImage: string | null;
   authorName: string;
   when: string;
   content: string;
@@ -168,6 +171,8 @@ export type FeedPost = {
   canDelete: boolean;
   comments: {
     id: string;
+    authorId: string;
+    authorImage: string | null;
     authorName: string;
     content: string;
     when: string;
@@ -175,7 +180,13 @@ export type FeedPost = {
   }[];
 };
 
-export function PostCard({ post }: { post: FeedPost }) {
+export function PostCard({
+  post,
+  viewerId,
+}: {
+  post: FeedPost;
+  viewerId: string;
+}) {
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likeCount);
   const [comment, setComment] = useState("");
@@ -203,11 +214,16 @@ export function PostCard({ post }: { post: FeedPost }) {
   return (
     <article className="post-card">
       <header className="post-head">
-        <span className="avatar" aria-hidden="true">
-          {post.authorName.trim().charAt(0).toUpperCase() || "?"}
-        </span>
+        <Link
+          href={`/people/${post.authorId}`}
+          aria-label={`${post.authorName}'s profile`}
+        >
+          <Avatar name={post.authorName} src={post.authorImage} />
+        </Link>
         <div>
-          <strong>{post.authorName}</strong>
+          <Link href={`/people/${post.authorId}`} className="person-link">
+            <strong>{post.authorName}</strong>
+          </Link>
           <small>{post.when}</small>
         </div>
         {post.canDelete && (
@@ -262,10 +278,21 @@ export function PostCard({ post }: { post: FeedPost }) {
         <ul className="comment-list">
           {comments.map((c) => (
             <li key={c.id}>
-              <p>
-                <strong>{c.authorName}</strong> {c.content}
-              </p>
-              <small>{c.when}</small>
+              <Link
+                href={`/people/${c.authorId}`}
+                aria-label={`${c.authorName}'s profile`}
+              >
+                <Avatar name={c.authorName} src={c.authorImage} size={32} />
+              </Link>
+              <div>
+                <p>
+                  <Link href={`/people/${c.authorId}`} className="person-link">
+                    <strong>{c.authorName}</strong>
+                  </Link>{" "}
+                  {c.content}
+                </p>
+                <small>{c.when}</small>
+              </div>
               {c.canDelete && (
                 <button
                   className="comment-delete"
@@ -295,6 +322,8 @@ export function PostCard({ post }: { post: FeedPost }) {
           start(async () => {
             addOptimisticComment({
               id: `pending-${Date.now()}`,
+              authorId: viewerId,
+              authorImage: null,
               authorName: "You",
               content: text,
               when: "Just now",

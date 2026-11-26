@@ -1,4 +1,4 @@
-import { and, eq, isNull, count } from "drizzle-orm";
+import { and, eq, isNull, like, count } from "drizzle-orm";
 import { getDb } from "@/db";
 import { images } from "@/db/schema";
 import { currentActor } from "@/server/session";
@@ -8,6 +8,7 @@ export const runtime = "nodejs";
 const fail = (message: string, status: number) =>
   Response.json({ message }, { status });
 export async function POST(request: Request) {
+  const avatar = new URL(request.url).searchParams.get("kind") === "avatar";
   let actor;
   try {
     actor = await currentActor();
@@ -31,18 +32,37 @@ export async function POST(request: Request) {
   if (!kind) return fail("Use a JPEG, PNG or WebP photo.", 415);
   try {
     const db = getDb();
+    const prefix = avatar ? "avatars" : "posts";
+    // Unused uploads are capped so nobody can fill the bucket with abandoned files.
     const [pending] = await db
       .select({ n: count() })
       .from(images)
-      .where(and(eq(images.ownerId, actor.id), isNull(images.postId)));
-    if ((pending?.n ?? 0) >= 10)
-      return fail("Post or remove your earlier photos before adding more.", 429);
+      .where(
+        avatar
+          ? and(eq(images.ownerId, actor.id), like(images.path, "avatars/%"))
+          : and(
+              eq(images.ownerId, actor.id),
+              isNull(images.postId),
+              like(images.path, "posts/%"),
+            ),
+      );
+    if ((pending?.n ?? 0) >= (avatar ? 5 : 10))
+      return fail(
+        avatar
+          ? "Too many profile photo changes. Try again later."
+          : "Post or remove your earlier photos before adding more.",
+        429,
+      );
     const id = crypto.randomUUID();
-    const key = `posts/${actor.id}/${id}.${kind.ext}`;
+    const key = `${prefix}/${actor.id}/${id}.${kind.ext}`;
     await putImage(key, bytes, kind.mime);
-    await db
-      .insert(images)
-      .values({ id, ownerId: actor.id, path: key, mimeType: kind.mime, size: bytes.length });
+    await db.insert(images).values({
+      id,
+      ownerId: actor.id,
+      path: key,
+      mimeType: kind.mime,
+      size: bytes.length,
+    });
     return Response.json({ id });
   } catch (e) {
     const reason = e instanceof Error ? e.message : "unknown error";

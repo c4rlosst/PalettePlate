@@ -18,6 +18,7 @@ import {
   deleteComment,
   deletePost,
 } from "@/server/feed";
+import { setAvatar, removeAvatar } from "@/server/people";
 export type ActionResult = { ok: boolean; message: string; id?: string };
 // Refresh only the pages an action can change; refreshing everything makes every click slow.
 async function run(
@@ -85,6 +86,18 @@ export async function deleteCommentAction(commentId: string) {
 }
 export async function deletePostAction(postId: string) {
   return run(async () => deletePost(await currentActor(), postId), ["/feed"]);
+}
+export async function setAvatarAction(imageId: string) {
+  return run(async () => setAvatar(await currentActor(), imageId), [
+    "/profile",
+    "/feed",
+  ]);
+}
+export async function removeAvatarAction() {
+  return run(async () => removeAvatar(await currentActor()), [
+    "/profile",
+    "/feed",
+  ]);
 }
 export async function profileAction(input: unknown) {
   return run(async () => saveProfile(await currentActor(), input), ["/profile"]);
