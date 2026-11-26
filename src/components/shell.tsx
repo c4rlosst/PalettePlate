@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { House, Search, BookOpen, UserRound, Plus } from "lucide-react";
+import {
+  House,
+  Search,
+  BookOpen,
+  UserRound,
+  Plus,
+  Images,
+} from "lucide-react";
 export function Shell({
   children,
   active = "Today",
@@ -10,6 +17,7 @@ export function Shell({
   const items = [
     { label: "Today", href: "/", icon: House },
     { label: "Foods", href: "/foods", icon: Search },
+    { label: "Feed", href: "/feed", icon: Images },
     { label: "Recipes", href: "/recipes", icon: BookOpen },
   ];
   return (
@@ -68,6 +76,7 @@ export function Shell({
           items[1],
           { label: "Log meal", href: "/log", icon: Plus },
           items[2],
+          items[3],
           { label: "Profile", href: "/profile", icon: UserRound },
         ].map(({ label, href, icon: Icon }) => (
           <Link
