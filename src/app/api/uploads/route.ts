@@ -44,7 +44,12 @@ export async function POST(request: Request) {
       .insert(images)
       .values({ id, ownerId: actor.id, path: key, mimeType: kind.mime, size: bytes.length });
     return Response.json({ id });
-  } catch {
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : "unknown error";
+    // Safe to log: the storage client never puts keys in its messages.
+    console.error("[uploads] failed:", reason);
+    if (/not configured/i.test(reason))
+      return fail("Photo uploads are not set up on this site yet.", 503);
     return fail("The photo could not be saved. Try again in a moment.", 500);
   }
 }
